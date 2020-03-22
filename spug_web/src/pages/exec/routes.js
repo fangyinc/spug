@@ -5,10 +5,12 @@
  */
 import { makeRoute } from "../../libs/router";
 import Template from './template';
+import Engine from './engine';
 import Task from './task';
 
 
 export default [
   makeRoute('/template', Template),
+  makeRoute('/engine', Engine),
   makeRoute('/task', Task),
 ]
