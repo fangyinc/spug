@@ -7,6 +7,8 @@ import http from 'axios'
 import history from './history'
 import {message} from 'antd';
 
+const API_SERVER = 'http://47.56.178.63:13000'
+
 // response处理
 function handleResponse(response) {
   let result;
@@ -36,10 +38,12 @@ function handleResponse(response) {
 
 // 请求拦截器
 http.interceptors.request.use(request => {
+  // console.log('http', request)
   if (request.url.startsWith('/api/')) {
     request.headers['X-Token'] = localStorage.getItem('token')
   }
   request.timeout = 30000;
+  request.url = API_SERVER + request.url
   return request;
 });
 
