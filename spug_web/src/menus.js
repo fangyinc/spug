@@ -10,6 +10,7 @@ export default [
     icon: 'code', title: '批量执行', auth: 'exec.task.do|exec.template.view', child: [
       {title: '执行任务', auth: 'exec.task.do', path: '/exec/task'},
       {title: '模板管理', auth: 'exec.template.view', path: '/exec/template'},
+      {title: '执行引擎', auth: 'exec.engine.view', path: '/exec/engine'},
     ]
   },
   {
