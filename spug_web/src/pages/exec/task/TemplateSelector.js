@@ -26,12 +26,13 @@ class TemplateSelector extends React.Component {
   }
 
   handleClick = (record) => {
-    this.setState({selectedRows: [record]});
+    this.setState({ selectedRows: [record] });
   };
 
   handleSubmit = () => {
     if (this.state.selectedRows.length > 0) {
-      this.props.onOk(this.state.selectedRows[0].body)
+      const engine = JSON.parse(JSON.stringify(this.state.selectedRows))[0]
+      this.props.onOk(this.state.selectedRows[0].body, { name: engine.engine_name, engine_type: engine.engine_id })
     }
     this.props.onCancel()
   };
@@ -53,7 +54,7 @@ class TemplateSelector extends React.Component {
   }];
 
   render() {
-    const {selectedRows} = this.state;
+    const { selectedRows } = this.state;
     let data = store.records;
     if (store.f_name) {
       data = data.filter(item => item['name'].toLowerCase().includes(store.f_name.toLowerCase()))
@@ -78,7 +79,7 @@ class TemplateSelector extends React.Component {
             </Select>
           </SearchForm.Item>
           <SearchForm.Item span={8} title="模板名称">
-            <Input allowClear value={store.f_name} onChange={e => store.f_name = e.target.value} placeholder="请输入"/>
+            <Input allowClear value={store.f_name} onChange={e => store.f_name = e.target.value} placeholder="请输入" />
           </SearchForm.Item>
           <SearchForm.Item span={8}>
             <Button type="primary" icon="sync" onClick={store.fetchRecords}>刷新</Button>
@@ -89,7 +90,7 @@ class TemplateSelector extends React.Component {
           rowSelection={{
             selectedRowKeys: selectedRows.map(item => item.id),
             type: 'radio',
-            onChange: (_, selectedRows) => this.setState({selectedRows})
+            onChange: (_, selectedRows) => this.setState({ selectedRows })
           }}
           dataSource={data}
           loading={store.isFetching}
@@ -98,7 +99,7 @@ class TemplateSelector extends React.Component {
               onClick: () => this.handleClick(record)
             }
           }}
-          columns={this.columns}/>
+          columns={this.columns} />
       </Modal>
     )
   }

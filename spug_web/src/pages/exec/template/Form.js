@@ -17,7 +17,7 @@ class ComForm extends React.Component {
     this.state = {
       loading: false,
       type: null,
-      engine_name: null,
+      engine_id: null,
       body: store.record['body'],
     }
   }
@@ -27,11 +27,6 @@ class ComForm extends React.Component {
     const formData = this.props.form.getFieldsValue();
     formData['id'] = store.record.id;
     console.log('formData',formData)
-    store.engine_names.forEach((item, index)=>{
-      if(item = formData.engine_name){
-        formData.engine_id =  store.engine_ids[index]
-      }
-    })
     formData['body'] = cleanCommand(this.state.body);
     http.post('/api/exec/template/', formData)
       .then(res => {
@@ -91,11 +86,11 @@ class ComForm extends React.Component {
             </Col>
           </Form.Item>
           <Form.Item required label="执行引擎">
-            {getFieldDecorator('engine_name', { initialValue: info['engine_name'] })(
+            {getFieldDecorator('engine_id', { initialValue: info['engine_id'] })(
               <Select placeholder="请选择引擎类型">
-                {store.engine_names.map(item => (
+                {store.engines.map(item => (
 
-                  <Select.Option value={item} key={item}>{item}</Select.Option>
+                  <Select.Option value={item.id} key={item.id}>{item.name}</Select.Option>
                 ))}
               </Select>
             )}

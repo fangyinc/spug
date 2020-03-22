@@ -8,8 +8,10 @@ import { observable } from "mobx";
 class Store {
   @observable outputs = {};
   @observable hosts = [];
+  @observable engines = [];
   @observable token = null;
   @observable showHost = false;
+  @observable showEngine = false;
   @observable showConsole = false;
   @observable showTemplate = false;
 
@@ -20,6 +22,10 @@ class Store {
   switchTemplate = () => {
     this.showTemplate = !this.showTemplate
   };
+
+  switchEngine = () => {
+    this.showEngine = !this.showEngine
+  }
 
   switchConsole = (token) => {
     if (this.showConsole) {

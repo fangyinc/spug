@@ -22,7 +22,7 @@ class ComTable extends React.Component {
     dataIndex: 'name',
   }, {
     title: '引擎类型',
-    dataIndex: 'engine_type',
+    dataIndex: 'engine_type_name',
   }, {
     title: '启动命令',
     dataIndex: 'start_command',

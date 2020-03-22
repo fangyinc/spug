@@ -46,6 +46,8 @@ class AuthModal extends React.Component {
   };
   handleSubmit = () => {
     const { host_list, selectHostCheck, selectPassword } = this.state
+    var selectHosts = []
+    var selectHostChecks = []
     var selectHost = host_list.filter((item, index) => {
       return selectHostCheck[index]
     })
@@ -55,44 +57,41 @@ class AuthModal extends React.Component {
     }
     if (selectPassword) {
       selectHost.forEach((item) => {
-        delete item.id;
         item.password = selectPassword
       })
       console.log('selectHost', selectHost)
+
       http.post('/api/host/batch', JSON.stringify({ host_list: selectHost })).then(res => {
         message.success('验证成功');
         console.log('res', res)
         if (res.length > 0) {
-          selectHost = host_list.filter((item, index) => {
+          console.log('host_list', host_list, selectHostCheck)
+          selectHosts = host_list.filter((item, index) => {
             return !selectHostCheck[index]
           })
-          selectHostCheck = selectHostCheck.filter((item, index) => {
+          selectHostChecks = selectHostCheck.filter((item, index) => {
             return !selectHostCheck[index]
           })
           res.forEach((item) => {
-            selectHostCheck.push(true)
+            selectHostChecks.push(true)
           })
-          selectHost = selectHost.concat(res)
-          console.log('111', selectHost, selectHostCheck)
-          this.setState({
-            host_list: selectHost,
-            selectHostCheck
-          })
-        } else {
-          selectHost = host_list.filter((item, index) => {
-            return !selectHostCheck[index] 
-          }) || []
-          
-          selectHostCheck = selectHostCheck.filter((item, index) => {
-            return !selectHostCheck[index]
-          }) || []
-          console.log('222', selectHost, selectHostCheck)
-          this.setState({
-            host_list: selectHost,
-            selectHostCheck
-          })
-        }
+          selectHosts = selectHosts.concat(res)
+          console.log('111', selectHosts, selectHostChecks)
 
+        } else {
+          selectHosts = host_list.filter((item, index) => {
+            return !selectHostCheck[index]
+          })
+
+          selectHostChecks = selectHostCheck.filter((item, index) => {
+            return !selectHostCheck[index]
+          })
+          console.log('222', selectHosts, selectHostChecks)
+        }
+      })
+      this.setState({
+        host_list: selectHosts,
+        selectHostCheck: selectHostChecks
       })
     } else {
       message.warning('请输入授权密码')
@@ -166,7 +165,7 @@ class AuthModal extends React.Component {
                   </Form>
                 </Col>
                 <Col span={2}>
-                  <Checkbox checked={selectHostCheck[index]} style={{ display: 'inline-block', lineHeight: '40px' }} onChange={(e) => { this.handleSelect(e, index) }} value={index}>{index}</Checkbox>
+                  <Checkbox checked={selectHostCheck[index]} style={{ display: 'inline-block', lineHeight: '40px' }} onChange={(e) => { this.handleSelect(e, index) }} value={index}></Checkbox>
                 </Col>
               </Row>)
           })

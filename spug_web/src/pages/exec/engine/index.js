@@ -16,8 +16,8 @@ export default observer(function () {
       <SearchForm>
         <SearchForm.Item span={8} title="引擎类型">
           <Select allowClear onChange={v => store.f_type = v} placeholder="请选择">
-            {store.engine_types.map(item => (
-              <Select.Option value={item} key={item}>{item}</Select.Option>
+            {store.engines.map(item => (
+              <Select.Option value={item.engine_type} key={item.engine_type}>{item.name}</Select.Option>
             ))}
           </Select>
         </SearchForm.Item>

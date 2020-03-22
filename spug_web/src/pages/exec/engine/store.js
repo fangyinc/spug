@@ -8,7 +8,7 @@ import http from 'libs/http';
 
 class Store {
   @observable records = [];
-  @observable engine_types = [];
+  @observable engines = [];
   @observable record = {};
   @observable isFetching = false;
   @observable formVisible = false;
@@ -20,12 +20,8 @@ class Store {
     this.isFetching = true;
     http.get('/api/exec/engine/types')
       .then((res) => {
-        console.log('res', res)
-        var types = []
-        res.forEach(item => {
-          types.push(item.engine_type)
-        });
-        this.engine_types = types
+        console.log('res1', res)
+        this.engines = res
       })
       .finally(() => this.isFetching = false)
     http.get('/api/exec/engine/')

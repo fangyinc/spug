@@ -17,7 +17,7 @@ class ComForm extends React.Component {
     this.state = {
       loading: false,
       engine_type: null,
-      start_script: store.record['start_script'],
+      start_script: store.records['start_script'],
     }
   }
 
@@ -34,7 +34,7 @@ class ComForm extends React.Component {
           store.formVisible = false;
           store.fetchRecords()
         }, () => this.setState({ loading: false }))
-    }else{
+    } else {
       http.post('/api/exec/engine/', formData)
         .then(res => {
           message.success('创建成功');
@@ -44,27 +44,6 @@ class ComForm extends React.Component {
     }
   };
 
-  handleAddZone = () => {
-    Modal.confirm({
-      icon: 'exclamation-circle',
-      title: '添加模板类型',
-      content: this.addZoneForm,
-      onOk: () => {
-        if (this.state.engine_type) {
-          store.engine_types.push(this.state.engine_type);
-          this.props.form.setFieldsValue({ 'engine_type': this.state.engine_type })
-        }
-      },
-    })
-  };
-
-  addZoneForm = (
-    <Form>
-      <Form.Item required label="引擎类型">
-        <Input onChange={val => this.setState({ type: val.target.value })} />
-      </Form.Item>
-    </Form>
-  );
 
   render() {
     const info = store.record;
@@ -83,8 +62,8 @@ class ComForm extends React.Component {
             <Col span={16}>
               {getFieldDecorator('engine_type', { initialValue: info['engine_type'] })(
                 <Select placeholder="请选择引擎类型">
-                  {store.engine_types.map(item => (
-                    <Select.Option value={item} key={item}>{item}</Select.Option>
+                  {store.engines.map(item => (
+                    <Select.Option value={item.engine_type} key={item.engine_type}>{item.name}</Select.Option>
                   ))}
                 </Select>
               )}

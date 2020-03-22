@@ -5,13 +5,15 @@
  */
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Form, Button, Tag } from 'antd';
+import { Form, Button, Tag, Col, Select } from 'antd';
 import { ACEditor, AuthCard } from 'components';
 import HostSelector from './HostSelector';
+import EngineSelector from './EngineSelector';
 import TemplateSelector from './TemplateSelector';
 import ExecConsole from './ExecConsole';
 import { http, cleanCommand } from 'libs';
 import store from './store';
+import engineStore from '../engine/store';
 
 @observer
 class TaskIndex extends React.Component {
@@ -20,19 +22,26 @@ class TaskIndex extends React.Component {
     this.state = {
       loading: false,
       body: '',
+      engine: {
+        name: '请选择引擎类型',
+        engine_type: ''
+      }
     }
   }
-
+  componentDidMount() {
+    engineStore.fetchRecords()
+  }
   handleSubmit = () => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     const host_ids = store.hosts.map(item => item.id);
-    http.post('/api/exec/do/', {host_ids, command: cleanCommand(this.state.body)})
+    http.post('/api/exec/do/', { host_ids, command: cleanCommand(this.state.body), engine_id: this.state.engine.engine_type })
       .then(store.switchConsole)
-      .finally(() => this.setState({loading: false}))
+      .finally(() => this.setState({ loading: false }))
   };
 
   render() {
-    const {body, token} = this.state;
+    const { body, token } = this.state;
+    console.log('body', body)
     return (
       <AuthCard auth="exec.task.do">
         <Form>
@@ -42,18 +51,27 @@ class TaskIndex extends React.Component {
             ))}
           </Form.Item>
           <Button icon="plus" onClick={store.switchHost}>从主机列表中选择</Button>
+          <Form.Item label="引擎类型">
+            <Col span={6}>
+              <Select placeholder="请选择引擎类型" onChange={(e) => { this.setState({ engine: engineStore.engines[e] }) }} value={this.state.engine && this.state.engine.name}>
+                {engineStore.engines.map((item, index) => (
+                  <Select.Option key={index}>{item.name}</Select.Option>
+                ))}
+              </Select>
+            </Col>
+          </Form.Item>
           <Form.Item label="执行命令">
-            <ACEditor mode="sh" value={body} height="300px" onChange={body => this.setState({body})}/>
+            <ACEditor mode="sh" value={body} height="300px" onChange={body => this.setState({ body })} />
           </Form.Item>
           <Form.Item>
             <Button icon="plus" onClick={store.switchTemplate}>从执行模版中选择</Button>
           </Form.Item>
           <Button icon="thunderbolt" type="primary" onClick={this.handleSubmit}>开始执行</Button>
         </Form>
-        {store.showHost && <HostSelector onCancel={store.switchHost} onOk={hosts => store.hosts = hosts}/>}
-        {store.showTemplate && <TemplateSelector onCancel={store.switchTemplate} onOk={body => this.setState({body})}/>}
-        {store.showConsole && <ExecConsole token={token} onCancel={store.switchConsole}/>}
-      </AuthCard>
+        {store.showHost && <HostSelector onCancel={store.switchHost} onOk={hosts => store.hosts = hosts} />}
+        {store.showTemplate && <TemplateSelector onCancel={store.switchTemplate} onOk={(body, engine) => { this.setState({ body, engine })}} />}
+        {store.showConsole && <ExecConsole token={token} onCancel={store.switchConsole} />}
+      </AuthCard >
     )
   }
 }

@@ -25,15 +25,7 @@ class ComTable extends React.Component {
     dataIndex: 'type',
   }, {
     title: '执行引擎',
-    render:(item)=>{
-      var engine_name = ''
-      store.engine_ids.forEach((ele, index)=>{
-        if(item.engine_id == ele){
-          engine_name =  store.engine_names[index]
-        }
-      })
-      return (<span>{engine_name}</span>)
-    }
+    dataIndex: 'engine_name'
   }, {
     title: '模版内容',
     render: text => text.body,
