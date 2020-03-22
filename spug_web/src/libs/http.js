@@ -7,7 +7,7 @@ import http from 'axios'
 import history from './history'
 import {message} from 'antd';
 
-const API_SERVER = 'http://47.56.178.63:13000'
+// const API_SERVER = 'http://47.56.178.63:13000'
 
 // response处理
 function handleResponse(response) {
@@ -43,7 +43,7 @@ http.interceptors.request.use(request => {
     request.headers['X-Token'] = localStorage.getItem('token')
   }
   request.timeout = 30000;
-  request.url = API_SERVER + request.url
+  // request.url = API_SERVER + request.url
   return request;
 });
 
