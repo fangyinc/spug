@@ -54,6 +54,24 @@ class SSH:
             sftp = cli.open_sftp()
             sftp.put(local_path, remote_path)
             sftp.close()
+            sftp.open()
+
+    def put_content_to_remote(self, remote_path, content, mkdir=False):
+        """
+        将文本传输到远程服务器
+        :param remote_path 远程路径
+        :param content 文件内容
+        :param mkdir 如果目录不存在, 是否创建相关目录
+        """
+        if mkdir:
+            import os
+            bash_dir = os.path.split(remote_path)
+            if len(bash_dir) > 1 and bash_dir[0] != '':
+                self.exec_command(f'mkdir -p {bash_dir[0]}')
+        with self as cli:
+            sftp = cli.open_sftp()
+            with sftp.open(remote_path, 'w', 1024) as f:
+                f.write(content)
 
     def exec_command(self, command, timeout=1800, environment=None):
         command = 'set -e\n' + command

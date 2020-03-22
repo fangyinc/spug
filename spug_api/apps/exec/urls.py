@@ -8,4 +8,6 @@ from .views import *
 urlpatterns = [
     url(r'template/$', TemplateView.as_view()),
     url(r'do/$', do_task),
+    url(r'engine/$', EngineView.as_view()),
+    url(r'engine/types$', engine_type),
 ]

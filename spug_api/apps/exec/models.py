@@ -6,11 +6,45 @@ from libs import ModelMixin, human_datetime
 from apps.account.models import User
 
 
+class ExecEngine(models.Model, ModelMixin):
+    """
+    执行引擎
+    """
+    ENGINE_TYPES = (
+        ('1', 'shell'),
+        ('2', 'python2'),
+        ('3', 'python3')
+    )
+    # 引擎名字
+    name = models.CharField(max_length=50)
+    # 引擎类型(shell、python)
+    engine_type = models.CharField(max_length=2, choices=ENGINE_TYPES, default=ENGINE_TYPES[0][0])
+    # 启动用户
+    start_user = models.CharField(max_length=50, null=True)
+    # 启动命令
+    start_command = models.CharField(max_length=255, null=True)
+    # 启动脚本
+    start_script = models.TextField(null=True)
+    # 引擎描述
+    engine_desc = models.CharField(max_length=255, null=True)
+
+    def __repr__(self):
+        return '<ExecEngine %r>' % self.name
+
+    class Meta:
+        db_table = 'exec_engine'
+        ordering = ('-id',)
+
+    def get_engine_dict(self):
+        return self.__dict__
+
 class ExecTemplate(models.Model, ModelMixin):
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50)
     body = models.TextField()
     desc = models.CharField(max_length=255, null=True)
+    # 引擎类型
+    engine = models.ForeignKey(ExecEngine, models.PROTECT, related_name='+', null=True)
 
     created_at = models.CharField(max_length=20, default=human_datetime)
     created_by = models.ForeignKey(User, models.PROTECT, related_name='+')
@@ -23,3 +57,4 @@ class ExecTemplate(models.Model, ModelMixin):
     class Meta:
         db_table = 'exec_templates'
         ordering = ('-id',)
+

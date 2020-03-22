@@ -45,6 +45,15 @@ export default [{
       {key: 'edit', label: '编辑模板'},
       {key: 'del', label: '删除模板'},
     ]
+  }, {
+    key: 'engine',
+    label: '执行引擎',
+    perms: [
+      {key: 'view', label: '查看引擎'},
+      {key: 'add', label: '新建引擎'},
+      {key: 'edit', label: '编辑引擎'},
+      {key: 'del', label: '删除引擎'},
+    ]
   }]
 }, {
   key: 'deploy',
