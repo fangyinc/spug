@@ -6,13 +6,23 @@ from libs import json_response, JsonParser, Argument, human_datetime
 from libs.channel import Channel
 from apps.exec.models import ExecTemplate, ExecEngine
 from apps.host.models import Host
+import logging
 
+logger = logging.getLogger('django.apps.exec.TemplateView')
 
 class TemplateView(View):
     def get(self, request):
         templates = ExecTemplate.objects.all()
         types = [x['type'] for x in templates.order_by('type').values('type').distinct()]
-        return json_response({'types': types, 'templates': [x.to_dict() for x in templates]})
+        template_list = []
+        for item in templates:
+            x = item.to_dict()
+            if item.engine:
+                x['engine_name'] = item.engine.name
+            else:
+                x['engine_name'] = ''
+            template_list.append(x)
+        return json_response({'types': types, 'templates': template_list})
 
     def post(self, request):
         form, error = JsonParser(
@@ -82,7 +92,12 @@ class EngineView(View):
 
     def get(self, request):
         engines = ExecEngine.objects.all()
-        return json_response(engines)
+        engine_list = []
+        for item in engines:
+            x = item.to_dict()
+            x['engine_type_name'] = dict(ExecEngine.ENGINE_TYPES).get(item.engine_type)
+            engine_list.append(x)
+        return json_response(engine_list)
 
     def post(self, request):
         form, error = JsonParser(
