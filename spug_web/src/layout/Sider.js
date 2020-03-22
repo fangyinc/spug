@@ -42,7 +42,7 @@ class Sider extends React.Component {
 
   makeMenu = (menu) => {
     if (menu.auth !== undefined && !hasPermission(menu.auth)) return null;
-    return (menu.child) ? this.makeSubMenu(menu) : this.makeItem(menu)
+     return (menu.child) ? this.makeSubMenu(menu) : this.makeItem(menu)
   };
 
   makeItem = (menu) => {

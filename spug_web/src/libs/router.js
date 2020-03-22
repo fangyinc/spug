@@ -43,6 +43,7 @@ export class Router extends React.Component {
   }
 
   initialRoutes() {
+    // console.log('moduleRoutes', moduleRoutes)
     for (let moduleRoute of moduleRoutes) {
       for (let route of moduleRoute['routes']) {
         route['path'] = moduleRoute['prefix'] + route['subPath'];
@@ -52,6 +53,7 @@ export class Router extends React.Component {
   }
 
   render() {
+    // console.log('routes', this.routes)
     return (
       <Suspense fallback={<div>Loading...</div>}>
         <Switch>
