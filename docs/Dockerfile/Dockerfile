@@ -11,7 +11,7 @@ RUN apk add --no-cache --virtual .build-deps  openssl-dev gcc musl-dev python3-d
 
 
 ENV VERSION=2.2.0
-RUN git clone https://github.com/openspug/spug.git --depth=1 /spug && cd /spug && git pull
+RUN git clone https://github.com/staneyffer/spug.git --depth=1 /spug && cd /spug && git pull
 
 RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/  && pip install --upgrade pip && pip install --no-cache-dir -r /spug/spug_api/requirements.txt \
     && pip install --no-cache-dir gunicorn \
