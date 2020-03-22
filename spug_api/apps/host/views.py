@@ -9,7 +9,8 @@ from apps.setting.utils import AppSetting
 from apps.host.models import Host
 from libs.ssh import SSH, AuthenticationException
 from libs import human_datetime
-
+import logging
+logger = logging.getLogger('django.apps.host.HostView')
 
 class HostView(View):
     def get(self, request):
@@ -48,6 +49,38 @@ class HostView(View):
                 deleted_at=human_datetime(),
                 deleted_by=request.user,
             )
+        return json_response(error=error)
+
+
+class HostBatchView(View):
+    def post(self, request):
+        form, error = JsonParser(
+            Argument('host_list', type=list, help='请输入主机列表'),
+        ).parse(request.body)
+        result = []
+        if error is None and len(form.host_list) > 0:
+            for host in form.host_list:
+                if valid_ssh(host['hostname'], host['port'], host['username'], host.pop('password', '')) is False:
+                    # 没有检验成功的添加到返回值中去
+                    result.append(host)
+                    continue
+                if host.get('id'):
+                    Host.objects.filter(pk=host.pop('id')).update(**host)
+                else:
+                    host['created_by'] = request.user
+                    Host.objects.create(**host)
+        return json_response(data=result, error=error)
+
+    def delete(self, request):
+        form, error = JsonParser(
+            Argument('host_list', type=list, help='请输入主机列表'),
+        ).parse(request.GET)
+        if error is None and len(form.host_list) > 0:
+            for host in form.host_list:
+                Host.objects.filter(pk=host.get('id')).update(
+                    deleted_at=human_datetime(),
+                    deleted_by=request.user,
+                )
         return json_response(error=error)
 
 
