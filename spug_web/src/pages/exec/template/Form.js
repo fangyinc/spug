@@ -17,21 +17,28 @@ class ComForm extends React.Component {
     this.state = {
       loading: false,
       type: null,
+      engine_name: null,
       body: store.record['body'],
     }
   }
 
   handleSubmit = () => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     const formData = this.props.form.getFieldsValue();
     formData['id'] = store.record.id;
+    console.log('formData',formData)
+    store.engine_names.forEach((item, index)=>{
+      if(item = formData.engine_name){
+        formData.engine_id =  store.engine_ids[index]
+      }
+    })
     formData['body'] = cleanCommand(this.state.body);
     http.post('/api/exec/template/', formData)
       .then(res => {
         message.success('操作成功');
         store.formVisible = false;
         store.fetchRecords()
-      }, () => this.setState({loading: false}))
+      }, () => this.setState({ loading: false }))
   };
 
   handleAddZone = () => {
@@ -42,7 +49,7 @@ class ComForm extends React.Component {
       onOk: () => {
         if (this.state.type) {
           store.types.push(this.state.type);
-          this.props.form.setFieldsValue({'type': this.state.type})
+          this.props.form.setFieldsValue({ 'type': this.state.type })
         }
       },
     })
@@ -51,14 +58,14 @@ class ComForm extends React.Component {
   addZoneForm = (
     <Form>
       <Form.Item required label="模板类型">
-        <Input onChange={val => this.setState({type: val.target.value})}/>
+        <Input onChange={val => this.setState({ type: val.target.value })} />
       </Form.Item>
     </Form>
   );
 
   render() {
     const info = store.record;
-    const {getFieldDecorator} = this.props.form;
+    const { getFieldDecorator } = this.props.form;
     return (
       <Modal
         visible
@@ -68,10 +75,10 @@ class ComForm extends React.Component {
         onCancel={() => store.formVisible = false}
         confirmLoading={this.state.loading}
         onOk={this.handleSubmit}>
-        <Form labelCol={{span: 6}} wrapperCol={{span: 14}}>
+        <Form labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>
           <Form.Item required label="模板类型">
             <Col span={16}>
-              {getFieldDecorator('type', {initialValue: info['type']})(
+              {getFieldDecorator('type', { initialValue: info['type'] })(
                 <Select placeholder="请选择模板类型">
                   {store.types.map(item => (
                     <Select.Option value={item} key={item}>{item}</Select.Option>
@@ -83,21 +90,31 @@ class ComForm extends React.Component {
               <Button type="link" onClick={this.handleAddZone}>添加类型</Button>
             </Col>
           </Form.Item>
+          <Form.Item required label="执行引擎">
+            {getFieldDecorator('engine_name', { initialValue: info['engine_name'] })(
+              <Select placeholder="请选择引擎类型">
+                {store.engine_names.map(item => (
+
+                  <Select.Option value={item} key={item}>{item}</Select.Option>
+                ))}
+              </Select>
+            )}
+          </Form.Item>
           <Form.Item required label="模板名称">
-            {getFieldDecorator('name', {initialValue: info['name']})(
-              <Input placeholder="请输入模板名称"/>
+            {getFieldDecorator('name', { initialValue: info['name'] })(
+              <Input placeholder="请输入模板名称" />
             )}
           </Form.Item>
           <Form.Item required label="模板内容">
             <ACEditor
               mode="sh"
               value={this.state.body}
-              onChange={val => this.setState({body: val})}
-              height="300px"/>
+              onChange={val => this.setState({ body: val })}
+              height="300px" />
           </Form.Item>
           <Form.Item label="备注信息">
-            {getFieldDecorator('desc', {initialValue: info['desc']})(
-              <Input.TextArea placeholder="请输入模板备注信息"/>
+            {getFieldDecorator('desc', { initialValue: info['desc'] })(
+              <Input.TextArea placeholder="请输入模板备注信息" />
             )}
           </Form.Item>
         </Form>
