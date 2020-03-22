@@ -44,7 +44,7 @@ class AuthModal extends React.Component {
       checkAll: !checkAll,
     });
   };
-  handleSubmit = async () => {
+  handleSubmit = () => {
     const { host_list, selectHostCheck, selectPassword } = this.state
     var selectHost = host_list.filter((item, index) => {
       return selectHostCheck[index]
@@ -55,32 +55,64 @@ class AuthModal extends React.Component {
     }
     if (selectPassword) {
       selectHost.forEach((item) => {
-        item.passsword = selectPassword
+        delete item.id;
+        item.password = selectPassword
       })
       console.log('selectHost', selectHost)
-      // await http.post('/api/host/batch', JSON.stringify({ host_list: selectHost })).then(res => {
-      //   message.success('验证成功');
-      //   console.log('res', res)
-      //   // this.setState({
-      //   //   host_list: 
-      //   // })
-      // })
+      http.post('/api/host/batch', JSON.stringify({ host_list: selectHost })).then(res => {
+        message.success('验证成功');
+        console.log('res', res)
+        if (res.length > 0) {
+          selectHost = host_list.filter((item, index) => {
+            return !selectHostCheck[index]
+          })
+          selectHostCheck = selectHostCheck.filter((item, index) => {
+            return !selectHostCheck[index]
+          })
+          res.forEach((item) => {
+            selectHostCheck.push(true)
+          })
+          selectHost = selectHost.concat(res)
+          console.log('111', selectHost, selectHostCheck)
+          this.setState({
+            host_list: selectHost,
+            selectHostCheck
+          })
+        } else {
+          selectHost = host_list.filter((item, index) => {
+            return !selectHostCheck[index] 
+          }) || []
+          
+          selectHostCheck = selectHostCheck.filter((item, index) => {
+            return !selectHostCheck[index]
+          }) || []
+          console.log('222', selectHost, selectHostCheck)
+          this.setState({
+            host_list: selectHost,
+            selectHostCheck
+          })
+        }
+
+      })
     } else {
       message.warning('请输入授权密码')
     }
   }
 
   handleConfirm = (index) => {
-    const { host_list } = this.state
-    if (host_list[index].passsword) {
+    const { host_list, selectHostCheck } = this.state
+    if (host_list[index].password) {
+      delete host_list[index].id;
       return http.post('/api/host/', host_list[index]).then(res => {
         message.success('验证成功');
         host_list.splice(index, 1)
+        selectHostCheck.splice(index, 1)
         this.setState({
-          host_list
+          host_list,
+          selectHostCheck
         })
       })
-    }else{
+    } else {
       message.warning('请输入授权密码')
     }
   };
@@ -125,7 +157,7 @@ class AuthModal extends React.Component {
                         <Input placeholder="主机备注信息" value={item.desc} />
                       </Form.Item>
                       <Form.Item style={{ display: 'inline-block', width: 'calc(20%)' }}>
-                        <Input type="password" addonBefore="*" placeholder="授权密码" value={item.passsword} onChange={(e) => { host_list[index].passsword = e.target.value; this.setState({ host_list }) }} />
+                        <Input type="password" addonBefore="*" placeholder="授权密码" value={item.password} onChange={(e) => { host_list[index].password = e.target.value; this.setState({ host_list }) }} />
                       </Form.Item>
                       <Form.Item style={{ display: 'inline-block', marginLeft: '10px', width: 'calc(10%)' }}>
                         <Button type="primary" icon="sync" onClick={() => this.handleConfirm(index)} >验证</Button>
