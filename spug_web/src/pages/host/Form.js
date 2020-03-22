@@ -45,6 +45,7 @@ class ComForm extends React.Component {
   handleConfirm = (formData) => {
     if (this.state.password) {
       formData['password'] = this.state.password;
+      console.log('formData',formData)
       return http.post('/api/host/', formData).then(res => {
         message.success('验证成功');
         store.formVisible = false;
