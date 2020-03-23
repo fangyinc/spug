@@ -5,7 +5,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import uuid
 import logging
-
+import copy
 layer = get_channel_layer()
 
 logger = logging.getLogger('django.libs.Channel')
@@ -20,6 +20,9 @@ class Channel:
     def send_ssh_executor(hostname, port, username, command, token=None, engine=None):
         if engine is None:
             engine = {}
+        engine_cp = copy.deepcopy(engine)
+        if engine_cp.get('start_user') is None or engine_cp.get('start_user') == '':
+            engine_cp['start_user'] = username
         message = {
             'type': 'exec',
             'token': token,

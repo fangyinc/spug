@@ -75,7 +75,7 @@ class EngineHelper(object):
 
     @staticmethod
     def _build_shell_engine(ssh_cli):
-        return ShellEngine(ssh_cli, '1', '', '', '')
+        return ShellEngine(ssh_cli, '1', 'default_user', '', '')
 
 
 class Engine(object):
