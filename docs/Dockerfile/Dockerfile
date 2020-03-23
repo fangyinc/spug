@@ -17,7 +17,7 @@ RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/  && 
     && pip install --no-cache-dir gunicorn \
     && apk del .build-deps
 
-RUN cd /spug/spug_web/ && npm i --registry=https://registry.npm.taobao.org && npm run build \
+RUN cd /spug/spug_web/ && npm i && npm run build \
     && mv /spug/spug_web/build /var/www/
 
 ADD spug.ini /etc/supervisor.d/spug.ini
