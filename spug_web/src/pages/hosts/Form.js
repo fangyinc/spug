@@ -44,14 +44,9 @@ class ComForm extends React.Component {
     })
     console.log('hosts', hosts)
     http.post('/api/host/batch', JSON.stringify({ host_list: hosts })).then(res => {
-      if (res === 'auth fail') {
-        // var data = JSON.parse(JSON.stringify({ "data": [{ "zone": "asd", "username": "ubuntu", "hostname": "49.232.33.171", "port": "22", "name": "\u9a6c\u6587\u6d9b\u6d4b\u8bd5", "desc": "\u54c8\u54c8", "id": 0 }], "error": null }))
-        // console.log('data', data)
-      } else {
-        message.success('操作成功');
-      }
+      message.success('操作成功');
       console.log('res', res)
-      if(res.length > 0){
+      if (res.length > 0) {
         this.setState({ showAuthModal: true, loading: false, host_list: res });
       }
     }, () => this.setState({ loading: false }))
@@ -86,7 +81,6 @@ class ComForm extends React.Component {
       onCancel: () => this.setState({ showAuthModal: false }),
       onOk: () => { },
       host_list: this.state.host_list
-      // host_list: JSON.parse(JSON.stringify({ "data": [{ "zone": "asd", "username": "ubuntu", "hostname": "49.232.33.171", "port": "22", "name": "测试机", "desc": "哈哈", "id": 0 }, { "zone": "asd", "username": "ubuntu", "hostname": "49.232.33.171", "port": "22", "name": "测试机", "desc": "哈哈", "id": 1 }], "error": null })).data
     }
     return (
       <Form labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>

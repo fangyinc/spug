@@ -8,6 +8,7 @@ import { observer } from 'mobx-react';
 import { Table, Divider, Modal, message } from 'antd';
 import { LinkButton } from 'components';
 import ComForm from './Form';
+import ComForms from './Forms';
 import http from 'libs/http';
 import store from './store';
 
@@ -82,6 +83,7 @@ class ComTable extends React.Component {
       <React.Fragment>
         <Table rowKey="id" loading={store.isFetching} dataSource={data} columns={this.columns}/>
         {store.formVisible && <ComForm/>}
+        {store.formsVisible && <ComForms/>}
       </React.Fragment>
     )
   }

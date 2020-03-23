@@ -28,8 +28,9 @@ export default observer(function () {
           <Button type="primary" icon="sync" onClick={store.fetchRecords}>刷新</Button>
         </SearchForm.Item>
       </SearchForm>
-      <AuthDiv auth="host.host.add" style={{marginBottom: 16}}>
-        <Button type="primary" icon="plus" onClick={() => store.showForm()}>新建</Button>
+      <AuthDiv auth="host.host.add" style={{marginBottom: 8}}>
+        <Button type="primary" icon="plus" style={{marginRight: 20}} onClick={() => store.showForm()}>新建</Button>
+        <Button type="primary" icon="plus" onClick={() => store.showForms()}>批量添加</Button>
       </AuthDiv>
       <ComTable/>
     </AuthCard>

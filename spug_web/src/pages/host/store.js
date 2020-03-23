@@ -13,6 +13,7 @@ class Store {
   @observable idMap = {};
   @observable isFetching = false;
   @observable formVisible = false;
+  @observable formsVisible = false;
 
   @observable f_name;
   @observable f_zone;
@@ -20,7 +21,7 @@ class Store {
   fetchRecords = () => {
     this.isFetching = true;
     return http.get('/api/host/')
-      .then(({hosts, zones}) => {
+      .then(({ hosts, zones }) => {
         this.records = hosts;
         this.zones = zones;
         for (let item of hosts) {
@@ -33,7 +34,11 @@ class Store {
   showForm = (info = {}) => {
     this.formVisible = true;
     this.record = info
-  }
+  };
+  showForms = (info = {}) => {
+    this.formsVisible = true;
+    this.record = info
+  };
 }
 
 export default new Store()
