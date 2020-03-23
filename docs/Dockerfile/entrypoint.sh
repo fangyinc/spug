@@ -12,7 +12,7 @@ if [ ! -d /run/nginx ]; then
 fi
 
 
-cd /data/spug/spug_api
+cd /spug/spug_api
 python manage.py initdb
 python manage.py useradd -u admin -p spug.dev -s -n 管理员
 
