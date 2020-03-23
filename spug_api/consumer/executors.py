@@ -30,7 +30,8 @@ class Job:
         self.command = command
         self.token = token
         self.rds_cli = None
-        self.exec_engine = EngineHelper.get_exec_engine(self.ssh_cli, **kwargs)
+        self.args = kwargs
+        self.exec_engine = self.get_engine(**kwargs)
 
     def _send(self, message, with_expire=False):
         if self.rds_cli is None:
@@ -54,6 +55,17 @@ class Job:
     def send_status(self, code):
         message = {'key': self.key, 'status': code}
         self._send(message, True)
+
+    def get_engine(self, **kwargs):
+        code = -1
+        try:
+            return EngineHelper.get_exec_engine(self.ssh_cli, **kwargs)
+        except Exception as e:
+            code = 131
+            logger.exception(e)
+            self.send_error(e.args[-1])
+        finally:
+            self.send_status(code)
 
     def run(self):
         if not self.token:

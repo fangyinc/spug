@@ -56,13 +56,19 @@ def do_task(request):
     form, error = JsonParser(
         Argument('host_ids', type=list, filter=lambda x: len(x), help='请选择执行主机'),
         Argument('command', help='请输入执行命令内容'),
+        Argument('engine_type', type=int, required=False),
         Argument('engine_id', type=int, required=False)
     ).parse(request.body)
     if error is None:
         token = Channel.get_token()
-        engine = {}
+        engine = None
         if form.engine_id:
-            engine = ExecEngine.objects.filter(pk=form.engine_id).first().get_engine_dict()
+            engine_obj = ExecEngine.objects.filter(pk=form.engine_id).first()
+            if engine_obj:
+                engine = ExecEngine.get_engine_dict(engine_obj)
+        else:
+            engine = ExecEngine.build_engine(form.engine_type)
+        logger.info(f'{engine}')
         for host in Host.objects.filter(id__in=form.host_ids):
             Channel.send_ssh_executor(
                 token=token,

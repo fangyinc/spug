@@ -70,7 +70,7 @@ class SSH:
                 self.exec_command(f'mkdir -p {bash_dir[0]}')
         with self as cli:
             sftp = cli.open_sftp()
-            with sftp.open(remote_path, 'w', 1024) as f:
+            with sftp.open(remote_path, 'wb', 1024) as f:
                 f.write(content)
 
     def exec_command(self, command, timeout=1800, environment=None):

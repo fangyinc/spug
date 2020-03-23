@@ -182,8 +182,10 @@ class Engine(object):
         """
         if not self._has_engine_script:
             # 没有引擎脚本, 直接返回
+            logger.warning(f'引擎类型[{self.engine_type}]的引擎脚本为空, 不用准备引擎数据')
             return
-        self.ssh_cli.put_content_to_remote(self.get_exec_script_path(), self.start_script, True)
+        logger.info(f'开始准备引擎数据, 引擎数据路径为: {self.get_engine_path()}')
+        self.ssh_cli.put_content_to_remote(self.get_engine_path(), self.start_script, True)
 
     def _prepare_exec_data(self, content):
         """

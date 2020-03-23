@@ -4,6 +4,7 @@
 from django.db import models
 from libs import ModelMixin, human_datetime
 from apps.account.models import User
+import inspect
 
 
 class ExecEngine(models.Model, ModelMixin):
@@ -35,8 +36,17 @@ class ExecEngine(models.Model, ModelMixin):
         db_table = 'exec_engine'
         ordering = ('-id',)
 
-    def get_engine_dict(self):
-        return self.__dict__
+    @staticmethod
+    def get_engine_dict(f):
+        return dict((key, value) for key, value in f.__dict__.items()
+                    if not callable(value) and not key.startswith('__') and not key.startswith('_'))
+
+    @staticmethod
+    def build_engine(type_id):
+        if type_id and type_id in dict(ExecEngine.ENGINE_TYPES):
+            return {'engine_type': type_id}
+        return None
+
 
 class ExecTemplate(models.Model, ModelMixin):
     name = models.CharField(max_length=50)
@@ -57,4 +67,3 @@ class ExecTemplate(models.Model, ModelMixin):
     class Meta:
         db_table = 'exec_templates'
         ordering = ('-id',)
-
