@@ -24,7 +24,8 @@ class TaskIndex extends React.Component {
       body: '',
       engine: {
         name: '请选择引擎类型',
-        engine_type: ''
+        engine_type: '',
+        engine_id: ''
       }
     }
   }
@@ -34,7 +35,8 @@ class TaskIndex extends React.Component {
   handleSubmit = () => {
     this.setState({ loading: true });
     const host_ids = store.hosts.map(item => item.id);
-    http.post('/api/exec/do/', { host_ids, command: cleanCommand(this.state.body), engine_id: this.state.engine.engine_type })
+    http.post('/api/exec/do/', { host_ids, command: cleanCommand(this.state.body),
+      engine_type: this.state.engine.engine_type, engine_id: this.state.engine.engine_id })
       .then(store.switchConsole)
       .finally(() => this.setState({ loading: false }))
   };
@@ -53,7 +55,8 @@ class TaskIndex extends React.Component {
           <Button icon="plus" onClick={store.switchHost}>从主机列表中选择</Button>
           <Form.Item label="引擎类型">
             <Col span={6}>
-              <Select placeholder="请选择引擎类型" onChange={(e) => { this.setState({ engine: engineStore.engines[e] }) }} value={this.state.engine && this.state.engine.name}>
+              <Select placeholder="请选择引擎类型" onChange={(e) => { this.setState({
+                engine: {engine_type: engineStore.engines[e].engine_type, name:engineStore.engines[e].name  }}) }} value={this.state.engine && this.state.engine.name}>
                 {engineStore.engines.map((item, index) => (
                   <Select.Option key={index}>{item.name}</Select.Option>
                 ))}

@@ -32,7 +32,9 @@ class TemplateSelector extends React.Component {
   handleSubmit = () => {
     if (this.state.selectedRows.length > 0) {
       const engine = JSON.parse(JSON.stringify(this.state.selectedRows))[0]
-      this.props.onOk(this.state.selectedRows[0].body, { name: engine.engine_name, engine_type: engine.engine_id })
+      this.props.onOk(this.state.selectedRows[0].body, {
+        engine_id: engine.engine_id
+      })
     }
     this.props.onCancel()
   };
