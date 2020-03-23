@@ -11,12 +11,10 @@ if [ ! -d /run/nginx ]; then
     chown -R nginx.nginx /run/nginx
 fi
 
-# init spug
-if [ ! -f /spug/spug_api/db.sqlite3 ]; then
-    cd /spug/spug_api
-    python manage.py initdb
-    python manage.py useradd -u admin -p spug.dev -s -n 管理员
-fi
+
+cd /data/spug/spug_api
+python manage.py initdb
+python manage.py useradd -u admin -p spug.dev -s -n 管理员
 
 nginx
 supervisord -c /etc/supervisord.conf
