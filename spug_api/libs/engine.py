@@ -99,6 +99,9 @@ class Engine(object):
         """
         执行命令
         """
+        command = self.get_full_command()
+        logger.info(f'需要执行的命令为: {command}')
+
         # 准备执行引擎的数据
         self._prepare_engine_data()
         # 执行执行的脚本的内容的数据
@@ -111,12 +114,13 @@ class Engine(object):
         """
         执行命令返回steam
         """
+        command = self.get_full_command()
+        logger.info(f'需要执行的命令为: {command}')
+
         # 准备执行引擎的数据
         self._prepare_engine_data()
         # 执行执行的脚本的内容的数据
         self._prepare_exec_data(content)
-        command = self.get_full_command()
-        logger.info(f'需要执行的命令为: {command}')
         return self.ssh_cli.exec_command_with_stream(command)
 
     def check_exec_env(self):
