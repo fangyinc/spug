@@ -16,7 +16,7 @@ RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/  && 
 RUN cd /spug/spug_web/ && npm i && npm run build \
     && mv /spug/spug_web/build /var/www/
 
-ADD spug.ini /etc/supervisor.d/spug.ini
+ADD spug-prod.ini /etc/supervisor.d/spug.ini
 ADD default.conf /etc/nginx/conf.d/default.conf
 ADD entrypoint.sh /entrypoint.sh
 
