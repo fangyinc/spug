@@ -43,7 +43,7 @@ class ExecEngine(models.Model, ModelMixin):
 
     @staticmethod
     def build_engine(type_id):
-        if type_id and type_id in dict(ExecEngine.ENGINE_TYPES):
+        if type_id and str(type_id) in dict(ExecEngine.ENGINE_TYPES):
             return {'engine_type': type_id}
         return None
 

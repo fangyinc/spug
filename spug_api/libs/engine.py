@@ -106,8 +106,6 @@ class Engine(object):
         self._prepare_engine_data()
         # 执行执行的脚本的内容的数据
         self._prepare_exec_data(content)
-        command = self.get_full_command()
-        logger.info(f'需要执行的命令为: {command}')
         return self.ssh_cli.exec_command(command)
 
     def exec_script_with_stream(self, content=None, timeout=1800, environment=None):
