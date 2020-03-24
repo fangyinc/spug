@@ -6,6 +6,55 @@ Spug是面向中小型企业设计的无 Agent的自动化运维平台，整合�
 
 </div>
 
+
+## Fork 功能介绍
+### 主要特性
+- 主机批量添加
+- 添加执行引擎的概念（引擎类型支持运行python2 python3 shell, 后续可扩展为java等)
+- 支持编写自定义引擎脚本(模板选择执行引擎, 运行时将模板内容传给引擎)
+
+
+### 执行引擎技术实现
+本质上将原来的命令发送到目标机器执行改为将需要执行的内容写入到目标机器的临时文件, 然后执行启动命名。
+
+```bash
+执行命令 + 执行引擎脚本路径 + 执行文件的路径
+```
+例如执行引擎类型为python2, 引擎内容为修改主机/etc/hosts的引擎的执行路径大致是：
+```
+python2  /tmp/spug/engine/python3/1584813680149/change_hosts.py /tmp/spug/exec/python3/1584813680149/hosts_content.py
+```
+
+其中引擎内容(```/tmp/spug/engine/python3/1584813680149/change_hosts.py```)和传递的模板内容(```/tmp/spug/exec/python3/1584813680149/hosts_content.py```)
+都是提前写到目标机器
+
+执行引擎的核心代码在 [spug_api/libs/engine.py](https://github.com/staneyffer/spug/blob/master/spug_api/libs/engine.py)
+
+
+### 功能截图：
+![主机批量添加1.jpg](https://my-blog-images.oss-cn-qingdao.aliyuncs.com/15850524484297703.jpg)
+
+![主机批量添加验证用户密码.jpg](https://my-blog-images.oss-cn-qingdao.aliyuncs.com/15850524484894800.jpg)
+
+![执行引擎添加.jpg](https://my-blog-images.oss-cn-qingdao.aliyuncs.com/15850524483825890.jpg)
+
+
+![模板新建选择执行引擎.jpg](https://my-blog-images.oss-cn-qingdao.aliyuncs.com/15850524481352757.jpg)
+
+
+![执行任务之shell.jpg](https://my-blog-images.oss-cn-qingdao.aliyuncs.com/15850524483308611.jpg)
+
+![执行任务之python2.jpg](https://my-blog-images.oss-cn-qingdao.aliyuncs.com/15850524482943866.jpg)
+
+![执行任务选择多种执行引擎的类型.jpg](https://my-blog-images.oss-cn-qingdao.aliyuncs.com/15850524482601126.jpg)
+
+
+![执行任务例子之hosts修改.jpg](https://my-blog-images.oss-cn-qingdao.aliyuncs.com/15850524482118884.jpg)
+
+
+
+水电费
+
 - 演示地址：https://demo.spug.dev
 - 官网地址：https://www.spug.dev
 - 使用文档：https://www.spug.dev/docs/about-spug/
