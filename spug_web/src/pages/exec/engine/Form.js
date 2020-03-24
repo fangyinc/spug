@@ -17,7 +17,7 @@ class ComForm extends React.Component {
     this.state = {
       loading: false,
       engine_type: null,
-      start_script: store.records['start_script'],
+      start_script: store.record['start_script']
     }
   }
 
