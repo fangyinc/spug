@@ -37,7 +37,7 @@ class Local(object):
         执行本地命令, 将输出封装为stream返回
         :return code, message  如果code不为0, 说明执行没有成功
         """
-        task = subprocess.Popen(content, env=environment, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        task = subprocess.Popen(content, env=environment, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         message = task.stdout.readline()
         while message:
