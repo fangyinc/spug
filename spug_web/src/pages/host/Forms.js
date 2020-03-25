@@ -29,15 +29,15 @@ class ComForms extends React.Component {
   handleSubmit = () => {
     this.setState({ loading: true });
     const formData = this.props.form.getFieldsValue();
-    var host_list = formData.host_list.trim().split('\n')
+    var host_list = formData.host_list.trim().split(/[\r\n]{1,2}/)
     var hosts = []
     var host = {}
     host_list.forEach((item, index) => {
-      item = this.trimStr(item).split(' ')
+      item = this.trimStr(item).split(/\s+/)
       host.zone = formData.zone || '-'
-      host.username = item[0] || '-'
+      host.username = item[0] || 'root'
       host.hostname = item[1] || '-'
-      host.port = item[2] || '-'
+      host.port = item[2] || '22'
       host.name = item[3] || '-'
       host.desc = item[4] || '-'
       hosts.push(host)
@@ -134,7 +134,7 @@ class ComForms extends React.Component {
           </Form.Item>
           <Form.Item required label="主机及其认证方式">
             {getFieldDecorator('host_list', { initialValue: info['host_list'] })(
-              <Input.TextArea style={{ minHeight: "300px" }} placeholder="请输入主机认证信息，每行一个主机，格式：主机名 主机地址 端口 主机名称 备注" />
+              <Input.TextArea style={{ minHeight: "300px" }} placeholder="请输入主机认证信息，每行一个主机，格式：用户名 ip地址 端口 主机别名 备注" />
             )}
           </Form.Item>
           <Form.Item wrapperCol={{ span: 14, offset: 6 }}>
