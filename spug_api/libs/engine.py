@@ -2,6 +2,7 @@ from django.conf import settings
 import time
 import os
 import logging
+from libs.local import Local
 
 logger = logging.getLogger('django.libs.engine.Engine')
 
@@ -106,7 +107,9 @@ class Engine(object):
         self._prepare_engine_data()
         # 执行执行的脚本的内容的数据
         self._prepare_exec_data(content)
-        return self.ssh_cli.exec_command(command)
+        if self.exec_at_local:
+            return Local.exec_command(command, timeout, environment)
+        return self.ssh_cli.exec_command(command, timeout, environment)
 
     def exec_script_with_stream(self, content=None, timeout=1800, environment=None):
         """
@@ -119,7 +122,9 @@ class Engine(object):
         self._prepare_engine_data()
         # 执行执行的脚本的内容的数据
         self._prepare_exec_data(content)
-        return self.ssh_cli.exec_command_with_stream(command)
+        if self.exec_at_local:
+            return Local.exec_command_with_stream(command, timeout, environment)
+        return self.ssh_cli.exec_command_with_stream(command, timeout, environment)
 
     def check_exec_env(self):
         """
@@ -129,6 +134,13 @@ class Engine(object):
     @property
     def _has_engine_script(self):
         return self.start_script is not None and self.start_script != ''
+
+    @property
+    def exec_at_local(self):
+        """
+        根据ssh_cli是否为None判断是否本地执行
+        """
+        return self.ssh_cli is None
 
     def get_full_command(self):
         """
@@ -187,7 +199,7 @@ class Engine(object):
             logger.warning(f'引擎类型[{self.engine_type}]的引擎脚本为空, 不用准备引擎数据')
             return
         logger.info(f'开始准备引擎数据, 引擎数据路径为: {self.get_engine_path()}')
-        self.ssh_cli.put_content_to_remote(self.get_engine_path(), self.start_script, True)
+        self._write_data(self.get_engine_path(), self.start_script, True)
 
     def _prepare_exec_data(self, content):
         """
@@ -195,8 +207,14 @@ class Engine(object):
         """
         if content is None or content == '':
             raise Exception('缺少执行内容')
-        self.ssh_cli.put_content_to_remote(self.get_exec_script_path(), content, True)
+        self._write_data(self.get_exec_script_path(), content, True)
 
+    def _write_data(self, write_path, content, mkdir):
+        """写入数据"""
+        if self.exec_at_local:
+            Local.put_content_to_local(write_path, content, mkdir)
+        else:
+            self.ssh_cli.put_content_to_remote(write_path, content, mkdir)
 
 class ShellEngine(Engine):
     """

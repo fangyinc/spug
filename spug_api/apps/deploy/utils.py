@@ -5,6 +5,7 @@ from django_redis import get_redis_connection
 from django.conf import settings
 from libs.utils import AttrDict, human_time, human_datetime
 from apps.host.models import Host
+from apps.exec.models import ExecEngine
 from concurrent import futures
 import requests
 import socket
@@ -12,8 +13,12 @@ import subprocess
 import json
 import uuid
 import os
+import logging
+from libs.engine import EngineHelper
 
 REPOS_DIR = settings.REPOS_DIR
+
+logger = logging.getLogger('django.apps.deploy.utils.Deploy')
 
 
 def deploy_dispatch(request, req, token):
@@ -105,7 +110,8 @@ def _ext2_deploy(req, helper, env):
     step = 2
     for action in server_actions:
         helper.send_step('local', step, f'\r\n{human_time()} {action["title"]}...\r\n')
-        helper.local(f'cd /tmp && {action["data"]}', env)
+        # helper.local(f'cd /tmp && {action["data"]}', env)
+        helper.run_with_engine('local', None, action, env)
         step += 1
     helper.send_step('local', 100, '完成\r\n' if step == 2 else '\r\n')
     if host_actions:
@@ -171,7 +177,8 @@ def _deploy_ext2_host(helper, h_id, actions, env):
     helper.send_step(h_id, 2, '完成\r\n')
     for index, action in enumerate(actions):
         helper.send_step(h_id, 2 + index, f'{human_time()} {action["title"]}...\r\n')
-        helper.remote(host.id, ssh, f'cd /tmp && {action["data"]}', env)
+        # helper.remote(host.id, ssh, f'cd /tmp && {action["data"]}', env)
+        helper.run_with_engine(host.id, ssh, action, env)
 
     helper.send_step(h_id, 100, f'\r\n{human_time()}** 发布成功 **')
 
@@ -266,3 +273,37 @@ class Helper:
                 self.send_error(key, f'exit code: {code}')
         except socket.timeout:
             self.send_error(key, 'time out')
+
+    def run_with_engine(self, key, ssh, action, env=None):
+        """
+        使用执行引擎执行远程或者本地命令
+        :params ssh ssh客户端, 如果不为None则为远程命令, 如果None则为本地命令
+        """
+        engine = Helper._get_engine(action, ssh)
+        code = -1
+        out = ''
+        try:
+            for code, out in engine.exec_script_with_stream(content=action.get('data'), environment=env):
+                self.send_info(key, out)
+            if code != 0:
+                self.send_error(key, f'exit code: {code}\nout: {out}')
+        except socket.timeout:
+            code = 130
+            self.send_error(key, '### Time out')
+        except Exception as e:
+            code = 131
+            logger.exception(e)
+            self.send_error(key, e.args[-1])
+
+    @staticmethod
+    def _get_engine(action, ssh=None):
+        engine_id = action.get('engine_id')
+        engine_type_id = action.get('engine_type_id')
+        engine = None
+        if engine_id:
+            engine_obj = ExecEngine.objects.filter(pk=engine_id).first()
+            if engine_obj:
+                engine = ExecEngine.get_engine_dict(engine_obj)
+        else:
+            engine = ExecEngine.build_engine(engine_type_id)
+        return EngineHelper.get_exec_engine(ssh, **{'engine': engine})

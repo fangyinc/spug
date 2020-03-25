@@ -29,7 +29,7 @@ SECRET_KEY = 'vk0do47)egwzz!uk49%(y3s(fpx4+ha@ugt-hcv&%&d@hwr&p7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -116,6 +116,11 @@ USE_L10N = True
 
 USE_TZ = True
 
+# 引擎脚本默认临时存放的地方
+# 引擎脚本执行默认存放位置:  基础路径 + 引擎类型 + 当前时间的毫秒数 + 引擎启动脚本
+# 例如python3的修改hosts的引擎: /tmp/spug/engine/python3/1584813680149/change_hosts.py
+REMOTE_SCRIPT_BASE_DIR = "/tmp/spug"
+
 AUTHENTICATION_EXCLUDES = (
     '/account/login/',
     re.compile('/apis/.*'),
@@ -125,6 +130,10 @@ SPUG_VERSION = 'v2.2.0'
 
 # override default config
 try:
-    from spug.overrides import *
+    ENV_VAR = os.environ.get('SPUG_ENV')
+    if ENV_VAR is None:
+        from spug.overrides import *
+    else:
+        pass
 except ImportError:
     pass

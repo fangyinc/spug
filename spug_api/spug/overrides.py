@@ -1,6 +1,8 @@
 import os
 
 
+ALLOWED_HOSTS = ['*']
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MYSQL_DB = os.environ.get('MYSQL_DB')
