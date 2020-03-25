@@ -19,20 +19,20 @@ export default observer(function () {
     <AuthCard auth="deploy.app.view">
       <SearchForm>
         <SearchForm.Item span={8} title="应用名称">
-          <Input allowClear onChange={e => store.f_name = e.target.value} placeholder="请输入"/>
+          <Input allowClear onChange={e => store.f_name = e.target.value} placeholder="请输入" />
         </SearchForm.Item>
         <SearchForm.Item span={8}>
           <Button type="primary" icon="sync" onClick={store.fetchRecords}>刷新</Button>
         </SearchForm.Item>
       </SearchForm>
-      <AuthDiv auth="deploy.app.add" style={{marginBottom: 16}}>
+      <AuthDiv auth="deploy.app.add" style={{ marginBottom: 16 }}>
         <Button type="primary" icon="plus" onClick={() => store.showForm()}>新建</Button>
       </AuthDiv>
-      <ComTable/>
+      <ComTable />
       {store.formVisible && <ComForm />}
       {store.addVisible && <AddSelect />}
-      {store.ext1Visible &&  <Ext1Form />}
-      {store.ext2Visible &&  <Ext2Form />}
+      {store.ext1Visible && <Ext1Form />}
+      {store.ext2Visible && <Ext2Form />}
     </AuthCard>
   )
 })

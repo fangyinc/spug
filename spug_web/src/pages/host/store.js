@@ -20,7 +20,7 @@ class Store {
 
   fetchRecords = () => {
     this.isFetching = true;
-    return http.get('/api/host/')
+    http.get('/api/host/')
       .then(({ hosts, zones }) => {
         this.records = hosts;
         this.zones = zones;
