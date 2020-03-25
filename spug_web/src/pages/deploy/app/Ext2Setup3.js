@@ -89,7 +89,7 @@ class Ext2Setup3 extends React.Component {
             <Form.Item label="引擎类型">
               <SearchForm>
                 <SearchForm.Item >
-                  <Select allowClear value={item['engine_type_id']} onChange={v => item['engine_type_id'] = v} placeholder="请选择">
+                  <Select allowClear value={item['engine_type_id']} onChange={v => {item['engine_type_id'] = v; item['engine_id'] = null;item['showTemplate']=false;}} placeholder="请选择">
                     {engineStore.engines.map(engine => (
                       <Select.Option value={engine.engine_type} key={engine.engine_type}>{engine.name}</Select.Option>
                     ))}
