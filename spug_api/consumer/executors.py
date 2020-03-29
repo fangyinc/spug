@@ -24,7 +24,6 @@ class SSHExecutor(SyncConsumer):
 
 class Job:
     def __init__(self, hostname, port, username, pkey, command, token=None, **kwargs):
-        logger.info(f'其它的类型: {kwargs}')
         self.ssh_cli = SSH(hostname, port, username, pkey)
         self.key = f'{hostname}:{port}'
         self.command = command

@@ -35,6 +35,9 @@ class Detection(models.Model, ModelMixin):
     latest_fault_time = models.IntegerField(null=True)
     latest_notify_time = models.IntegerField(default=0)
 
+    # 应用发布ID, 创建应用发布, 默认会配置进程监控
+    deploy_id = models.CharField(max_length=50, null=True)
+
     created_at = models.CharField(max_length=20, default=human_datetime)
     created_by = models.ForeignKey(User, models.PROTECT, related_name='+')
     updated_at = models.CharField(max_length=20, null=True)

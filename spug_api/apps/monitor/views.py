@@ -25,28 +25,11 @@ class DetectionView(View):
             Argument('rate', type=int, default=5),
             Argument('threshold', type=int, default=3),
             Argument('quiet', type=int, default=24 * 60),
-            Argument('notify_grp', type=list, help='请选择报警联系组'),
-            Argument('notify_mode', type=list, help='请选择报警方式'),
+            Argument('notify_grp', type=list, required=False),
+            Argument('notify_mode', type=list, required=False),
         ).parse(request.body)
         if error is None:
-            form.notify_grp = json.dumps(form.notify_grp)
-            form.notify_mode = json.dumps(form.notify_mode)
-            if form.id:
-                Detection.objects.filter(pk=form.id).update(
-                    updated_at=human_datetime(),
-                    updated_by=request.user,
-                    **form)
-                task = Detection.objects.filter(pk=form.id).first()
-                if task and task.is_active:
-                    form.action = 'modify'
-                    rds_cli = get_redis_connection()
-                    rds_cli.lpush(settings.MONITOR_KEY, json.dumps(form))
-            else:
-                dtt = Detection.objects.create(created_by=request.user, **form)
-                form.action = 'add'
-                form.id = dtt.id
-                rds_cli = get_redis_connection()
-                rds_cli.lpush(settings.MONITOR_KEY, json.dumps(form))
+            add_monitor(request.user, form)
         return json_response(error=error)
 
     def patch(self, request):
@@ -78,3 +61,45 @@ class DetectionView(View):
                     return json_response(error='该监控项正在运行中，请先停止后再尝试删除')
                 task.delete()
         return json_response(error=error)
+
+
+def add_monitor(user, form):
+    form.notify_grp = json.dumps(form.notify_grp)
+    form.notify_mode = json.dumps(form.notify_mode)
+    if form.id:
+        Detection.objects.filter(pk=form.id).update(
+            updated_at=human_datetime(),
+            updated_by=user,
+            **form)
+        task = Detection.objects.filter(pk=form.id).first()
+        if task and task.is_active:
+            form.action = 'modify'
+            rds_cli = get_redis_connection()
+            rds_cli.lpush(settings.MONITOR_KEY, json.dumps(form))
+        return
+    elif form.deploy_id:
+        task = Detection.objects.filter(deploy_id=form.deploy_id).first()
+        if task:
+            form['id'] = task.id
+            Detection.objects.filter(pk=task.id).update(
+                updated_at=human_datetime(),
+                updated_by=user,
+                **form)
+            task = Detection.objects.filter(deploy_id=form.deploy_id).first()
+            if task and task.is_active:
+                form.action = 'modify'
+                form.rate = task.rate
+                rds_cli = get_redis_connection()
+                rds_cli.lpush(settings.MONITOR_KEY, json.dumps(form))
+            return
+    # 其它为新增
+    # 填充默认值
+    form['rate'] = form.get('rate') if form.get('rate') else 5
+    form['threshold'] = form.get('threshold') if form.get('threshold') else 20
+    form['quiet'] = form.get('quiet') if form.get('quiet') else 24 * 60
+
+    dtt = Detection.objects.create(created_by=user, **form)
+    form.action = 'add'
+    form.id = dtt.id
+    rds_cli = get_redis_connection()
+    rds_cli.lpush(settings.MONITOR_KEY, json.dumps(form))

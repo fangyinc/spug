@@ -8,6 +8,9 @@ from apps.app.models import App, Deploy, DeployExtend1, DeployExtend2
 from apps.config.models import Config
 from apps.app.utils import parse_envs, fetch_versions, remove_repo
 import json
+import logging
+
+logger = logging.getLogger('django.apps.app.AppView')
 
 
 class AppView(View):
@@ -86,11 +89,17 @@ class DeployView(View):
             Argument('is_audit', type=bool, default=False)
         ).parse(request.body)
         if error is None:
+            app = App.objects.filter(pk=form.app_id).first()
             deploy = Deploy.objects.filter(app_id=form.app_id, env_id=form.env_id).first()
+
             if deploy and deploy.id != form.id:
                 return json_response(error='应用在该环境下已经存在发布配置')
+            host_ids = form.host_ids
+            deploy_id = form.id
             form.host_ids = json.dumps(form.host_ids)
             form.rst_notify = json.dumps(form.rst_notify)
+
+
             if form.extend == '1':
                 extend_form, error = JsonParser(
                     Argument('git_repo', handler=str.strip, help='请输入git仓库地址'),
@@ -117,6 +126,7 @@ class DeployView(View):
                 else:
                     deploy = Deploy.objects.create(created_by=request.user, **form)
                     DeployExtend1.objects.create(deploy=deploy, **extend_form)
+                    deploy_id = deploy.id
             elif form.extend == '2':
                 extend_form, error = JsonParser(
                     Argument('server_actions', type=list, help='请输入执行动作'),
@@ -134,6 +144,9 @@ class DeployView(View):
                 else:
                     deploy = Deploy.objects.create(created_by=request.user, **form)
                     DeployExtend2.objects.create(deploy=deploy, **extend_form)
+                    deploy_id = deploy.id
+            # 默认都加进程监控
+            add_monitor(request, app, host_ids, deploy_id)
         return json_response(error=error)
 
     def delete(self, request):
@@ -153,3 +166,27 @@ def get_versions(request, d_id):
         return json_response(error='该应用不支持此操作')
     branches, tags = fetch_versions(deploy)
     return json_response({'branches': branches, 'tags': tags})
+
+
+def add_monitor(request, app, host_ids, deploy_id):
+    """
+    添加监控
+    """
+    from apps.monitor.views import add_monitor as am
+    from libs.utils import AttrDict
+    for h_id in host_ids:
+        params = {
+            'id': None,
+            'name': app.name,
+            'addr': h_id,
+            'type': '3',
+            'extra': app.key,
+            'notify_grp': [],
+            'notify_mode': [],
+            'deploy_id': deploy_id
+        }
+        p = AttrDict()
+        for k, v in params.items():
+            p[k] = v
+        logger.info(f'添加监控: {params}')
+        am(request.user, p)

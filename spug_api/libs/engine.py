@@ -31,7 +31,6 @@ class PathBuild(object):
             new_path = self.sep + new_path
         if new_path.endswith(self.sep):
             new_path = new_path.rsplit(self.sep, 1)[0]
-        logger.info(f'path: {self.path}, new_path: {new_path}')
         self.path = self.path + new_path
         return self
 
@@ -85,8 +84,8 @@ class Engine(object):
     """
 
     def __init__(self, ssh_cli, engine_type, start_user, start_command, start_script):
-        logger.info(f'ssh_cli: {ssh_cli}, engine_type: {engine_type}, '
-                    f'start_user: {start_user}, start_command: {start_command}, start_script: {start_script}')
+        logger.info(f'engine_type: {engine_type}, '
+                    f'start_user: {start_user}, start_command: {start_command}')
         # ssh客户端
         self.ssh_cli = ssh_cli
         self.engine_base_dir = settings.REMOTE_SCRIPT_BASE_DIR
@@ -221,9 +220,18 @@ class ShellEngine(Engine):
     shell 执行引擎
     """
 
+    def _prepare_exec_data(self, content):
+        """
+        准备执行的数据
+        """
+        if content is None or content == '':
+            raise Exception('缺少执行内容')
+        content = 'set -e\n' + content
+        self._write_data(self.get_exec_script_path(), content, True)
+
     def _get_start_command(self):
         if super()._get_start_command() == '':
-            return '/bin/sh'
+            return 'set -e \n/bin/sh'
         return super()._get_start_command()
 
     def _get_engine_file_name(self):
