@@ -103,6 +103,9 @@ MONITOR_KEY = 'spug:monitor'
 REQUEST_KEY = 'spug:request'
 REPOS_DIR = os.path.join(BASE_DIR, 'repos')
 
+# 单点登录
+REDIS_AUTH_KEY = 'spug:auto:sso:'
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 

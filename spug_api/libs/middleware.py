@@ -3,11 +3,15 @@
 # Released under the MIT License.
 from django.utils.deprecation import MiddlewareMixin
 from django.conf import settings
+from django_redis import get_redis_connection
 from .utils import json_response
 from apps.account.models import User
 import traceback
 import time
+from spug.settings import REDIS_AUTH_KEY
+import logging
 
+logger = logging.getLogger('django.libs.Auth')
 
 class HandleExceptionMiddleware(MiddlewareMixin):
     """
@@ -25,18 +29,22 @@ class AuthenticationMiddleware(MiddlewareMixin):
     """
 
     def process_request(self, request):
+        rds_cli = get_redis_connection()
         if request.path in settings.AUTHENTICATION_EXCLUDES:
             return None
         if any(x.match(request.path) for x in settings.AUTHENTICATION_EXCLUDES if hasattr(x, 'match')):
             return None
         access_token = request.headers.get('x-token') or request.GET.get('x-token')
-        if access_token and len(access_token) == 32:
+        if access_token:
             x_real_ip = request.headers.get('x-real-ip', '')
-            user = User.objects.filter(access_token=access_token).first()
-            if user and x_real_ip == user.last_ip and user.token_expired >= time.time() and user.is_active:
+            username = rds_cli.get(REDIS_AUTH_KEY + access_token)
+            username = username.decode() if username else None
+            user = User.objects.filter(username=username).first()
+            if user and user.is_active:
                 request.user = user
-                user.token_expired = time.time() + 8 * 60 * 60
+                user.token_expired = 8 * 60 * 60
                 user.save()
+                rds_cli.set(REDIS_AUTH_KEY + access_token, user.username, user.token_expired)
                 return None
         response = json_response(error="验证失败，请重新登录")
         response.status_code = 401

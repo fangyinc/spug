@@ -3,6 +3,7 @@
 # Released under the MIT License.
 from django.core.cache import cache
 from django.views.generic import View
+from django_redis import get_redis_connection
 from django.db.models import F
 from libs import JsonParser, Argument, human_datetime, json_response
 from apps.account.models import User, Role
@@ -11,7 +12,7 @@ from libs.ldap import LDAP
 import time
 import uuid
 import json
-
+from spug.settings import REDIS_AUTH_KEY
 
 class UserView(View):
     def get(self, request):
@@ -172,15 +173,19 @@ def login(request):
 
 
 def handle_user_info(user, x_real_ip):
+    rds_cli = get_redis_connection()
     cache.delete(user.username)
     token_isvalid = user.access_token and len(user.access_token) == 32 and user.token_expired >= time.time()
     user.access_token = user.access_token if token_isvalid else uuid.uuid4().hex
-    user.token_expired = time.time() + 8 * 60 * 60
+    # 8小时过期
+    user.token_expired = 8 * 60 * 60
     user.last_login = human_datetime()
     user.last_ip = x_real_ip
     user.save()
+    rds_token = uuid.uuid4().hex
+    rds_cli.set(REDIS_AUTH_KEY+rds_token, user.username, user.token_expired)
     return json_response({
-        'access_token': user.access_token,
+        'access_token': rds_token,
         'nickname': user.nickname,
         'is_supper': user.is_supper,
         'has_real_ip': True if x_real_ip else False,
