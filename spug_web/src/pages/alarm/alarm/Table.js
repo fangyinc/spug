@@ -53,7 +53,7 @@ class ComTable extends React.Component {
   }, {
     title: '通知对象',
     dataIndex: 'notify_grp',
-    render: value => value.map(id => this.state.groupMap[id]).join(',')
+    render: value => (value === null || value === '') ? '' : value.map(id => this.state.groupMap[id]).join(',')
   }, {
     title: '发生时间',
     dataIndex: 'created_at'

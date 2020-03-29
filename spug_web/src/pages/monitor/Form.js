@@ -97,7 +97,7 @@ class ComForm extends React.Component {
     if (type !== '1') {
       b1 = b1 && this.state.extra[type]
     }
-    const b2 = notify_grp && notify_grp.length && notify_mode && notify_mode.length;
+    const b2 = true;
     return [b1, b2];
   };
 
@@ -189,7 +189,7 @@ class ComForm extends React.Component {
                 </Radio.Group>
               )}
             </Form.Item>
-            <Form.Item required label="报警联系人组">
+            <Form.Item label="报警联系人组">
               {getFieldDecorator('notify_grp', {valuePropName: 'targetKeys', initialValue: info['notify_grp']})(
                 <Transfer
                   lazy={false}
@@ -200,7 +200,7 @@ class ComForm extends React.Component {
                   render={item => item.name}/>
               )}
             </Form.Item>
-            <Form.Item required label="报警方式">
+            <Form.Item label="报警方式">
               {getFieldDecorator('notify_mode', {initialValue: info['notify_mode']})(
                 <Checkbox.Group options={modeOptions}/>
               )}

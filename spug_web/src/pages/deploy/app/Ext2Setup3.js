@@ -126,7 +126,7 @@ class Ext2Setup3 extends React.Component {
                 mode="sh"
                 theme="tomorrow"
                 width="100%"
-                height="100px"
+                height="200px"
                 value={item['data']}
                 onChange={v => item['data'] = cleanCommand(v)}
                 placeholder="请输入要执行的动作" />
