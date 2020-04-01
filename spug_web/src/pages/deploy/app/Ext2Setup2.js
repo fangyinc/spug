@@ -16,7 +16,7 @@ class Ext2Setup2 extends React.Component {
     if (hostStore.records.length === 0) {
       hostStore.fetchRecords()
     }
-  }
+  };
 
   render() {
     const info = store.deploy;
@@ -26,9 +26,13 @@ class Ext2Setup2 extends React.Component {
           {info['host_ids'].map((id, index) => (
             <React.Fragment key={index}>
               <Select
+                showSearch
                 value={id}
                 placeholder="请选择"
                 style={{width: '80%', marginRight: 10}}
+                filterOption={(input, option) =>
+                  option.props.children[0].indexOf(input) >=0 || option.props.children[2].indexOf(input) >=0
+                }
                 onChange={v => store.editHost(index, v)}>
                 {hostStore.records.map(item => (
                   <Select.Option key={item.id} value={item.id} disabled={info['host_ids'].includes(item.id)}>
